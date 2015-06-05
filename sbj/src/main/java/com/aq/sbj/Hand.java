@@ -16,8 +16,8 @@ public class Hand  {
 
     private void NewHand() {
         //total=0;
-        cardList.clear();
-        //TODO: should i delegate all cardList Functions? probably, reevatlute how i interact with list, including deal and swap
+        this.clear();
+
         //soft=false;
     }
 
@@ -25,28 +25,45 @@ public class Hand  {
         this(new RandomDeck());
     }
 
-
-    private boolean soft=false;
+    public static void main(String[] params)
+    {
+        Hand hand=new Hand( );
+        for (int i = 0; i < 20; i++) {
+            hand.clear();
+            for (int j = 0; j < 4; j++) {
+                hand.Deal();
+                System.out.println(hand.toString());
+            }
+            System.out.println();
+        }
+    }
+    private boolean soft;
     private int total;
     private Deck deck;
     private List<Card> cardList;
     public static synchronized void Swap (Hand hand1, Hand hand2)
     {
-        hand1.privateDeal(hand2.cardList.get(1));
+        hand1.privateDeal(hand2.get(1));
     }
     public synchronized void privateDeal( Card newCard)
     {
-        cardList.add(newCard);
-        calcTotal();
+        this.add(newCard);
+
+    }
+
+
+    public int getTotal() {
+        return total;
     }
 
     private void calcTotal() {
         total=0;
         soft=false;
-        for (int i = 0; i < cardList.size(); i++) {
+        for (int i = 0; i < this.size(); i++) {
 
 
-            if (newCard.getRank()==1)
+            int rank = get(i).getRank();
+            if (rank ==1)
             {
                 if (soft){
                     total++;
@@ -56,13 +73,13 @@ public class Hand  {
                     soft=true;
                 }
             }
-            else if (newCard.getRank()>10)
+            else if (rank >10)
             {
-
+                total+=10;
             }
             else //2-9
             {
-
+                total+=rank;
             }
         }
         if (soft && total>21) {
@@ -79,14 +96,57 @@ public class Hand  {
     public String  HandString(String seperator)
     {
         StringBuilder sb=new StringBuilder((2+seperator.length())* INIT_HAND_SIZE);
-        for (int i = 0; i < cardList.size()-1; i++) {
-            sb.append(cardList.get(i).toString()+seperator);
+        for (int i = 0; i < this.size()-1; i++) {
+            sb.append(this.get(i).toString()).append( seperator);
         }
-        sb.append(cardList.get(cardList.size()-1));
+        sb.append(this.get(this.size() - 1));
         return sb.toString();
     }
     @Override
     public String toString() {
-        return (soft)? "SOFT":"    "+ " "+total + " : "+ HandString(" ");
+        return ((soft)? "SOFT":"    ")+ " "+total + " : "+ HandString(" ");
     }
+
+    //<editor-fold desc="cardlist delegates">
+    public int size() {
+        return cardList.size();
+    }
+
+    public boolean isEmpty() {
+        return cardList.isEmpty();
+    }
+
+    public boolean add(Card card) {
+
+        boolean result = cardList.add(card);
+        calcTotal();
+        return result;
+    }
+
+    public void clear() {
+        cardList.clear();
+        total=0;
+    }
+
+    public Card get(int i) {
+        return cardList.get(i);
+    }
+
+    public Card set(int i, Card card) {
+        Card result = cardList.set(i, card);
+        calcTotal();
+        return result;
+    }
+
+    public void add(int i, Card card) {
+        cardList.add(i, card);
+        calcTotal();
+    }
+
+    public Card remove(int i) {
+        Card result = cardList.remove(i);
+        calcTotal();
+        return result;
+    }
+    //</editor-fold>
 }
