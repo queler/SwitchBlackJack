@@ -1,24 +1,47 @@
 package com.aq.sbj;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Observable;
 
-public class Hand  {
+public class Hand extends Observable {//implements BankRoll.Bettable{
 
     public static final int INIT_HAND_SIZE = 8;
 
+    public boolean isSoft() {
+        return soft;
+    }
+
+    private boolean soft;
+    private int total;
+    private Deck deck;
+    private List<Card> cardList;
+
+    public boolean isDoubled() {
+        return doubled;
+    }
+
+    public void setDoubled(boolean doubled) {
+        this.doubled = doubled;
+    }
+    public void setDoubled(){setDoubled(true   );}
+    private boolean doubled;
+/*
+    public BankRoll.Bet getBet() {
+        return bet;
+    }
+
+    public void setBet(BankRoll.Bet bet) {
+        this.bet = bet;
+    }
+
+    private BankRoll.Bet bet;
+*/
     public Hand(Deck deck) {
         this.deck = deck;
         cardList=new ArrayList<Card>(INIT_HAND_SIZE);
         this.NewHand();
 
-    }
-
-    private void NewHand() {
-        //total=0;
-        this.clear();
-
-        //soft=false;
     }
 
     public Hand() {
@@ -27,6 +50,28 @@ public class Hand  {
 
     public static void main(String[] params)
     {
+        Deck deck=new RandomDeck();
+        Hand one=new Hand(deck);
+        Hand two=new Hand(deck);
+        for (int i = 0; i < 10; i++) {
+            one.Deal();
+            two.Deal();
+            one.Deal();
+            two.Deal();
+            System.out.println("Original");
+            System.out.println("Hand1: " + one.toString());
+            System.out.println("Hand2: " + two.toString());
+            System.out.println("Swapped");
+            Hand.Swap(one, two);
+            System.out.println("Hand1: " + one.toString());
+            System.out.println("Hand2: " + two.toString());
+            System.out.println("------------------");
+            one.clear();
+            two.clear();
+        }
+    }
+
+    private static void testTotal() {
         Hand hand=new Hand( );
         for (int i = 0; i < 20; i++) {
             hand.clear();
@@ -37,14 +82,22 @@ public class Hand  {
             System.out.println();
         }
     }
-    private boolean soft;
-    private int total;
-    private Deck deck;
-    private List<Card> cardList;
+
     public static synchronized void Swap (Hand hand1, Hand hand2)
     {
-        hand1.privateDeal(hand2.get(1));
+        Card oneToTwo=hand1.get(1);
+        Card twoToOne=hand2.get(1);
+        hand1.set(1,twoToOne);
+        hand2.set(1, oneToTwo);
     }
+
+    private void NewHand() {
+        //total=0;
+        this.clear();
+
+        //soft=false;
+    }
+
     public synchronized void privateDeal( Card newCard)
     {
         this.add(newCard);
@@ -104,7 +157,7 @@ public class Hand  {
     }
     @Override
     public String toString() {
-        return ((soft)? "SOFT":"    ")+ " "+total + " : "+ HandString(" ");
+        return ((soft)? "SOFT":"    ")+ " "+total+ " : "+ HandString(" ");
     }
 
     //<editor-fold desc="cardlist delegates">
@@ -116,37 +169,46 @@ public class Hand  {
         return cardList.isEmpty();
     }
 
-    public boolean add(Card card) {
+    public synchronized boolean add(Card card) {
 
         boolean result = cardList.add(card);
         calcTotal();
+        setChanged();
+        notifyObservers();
         return result;
     }
 
-    public void clear() {
+    public synchronized void clear() {
         cardList.clear();
         total=0;
+        setChanged();
+        notifyObservers();
+
     }
 
     public Card get(int i) {
         return cardList.get(i);
     }
 
-    public Card set(int i, Card card) {
+    public synchronized Card set(int i, Card card) {
         Card result = cardList.set(i, card);
         calcTotal();
+        setChanged();
+        notifyObservers();
         return result;
     }
 
-    public void add(int i, Card card) {
+    public synchronized void add(int i, Card card) {
         cardList.add(i, card);
         calcTotal();
     }
 
-    public Card remove(int i) {
+    protected synchronized Card remove(int i) {
         Card result = cardList.remove(i);
         calcTotal();
         return result;
     }
+
+
     //</editor-fold>
 }
