@@ -3,6 +3,10 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="svn" />
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/sbjgui" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/app" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/libsbj" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/sbj" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/sbjGUI" vcs="svn" />
   </component>
 </project>
