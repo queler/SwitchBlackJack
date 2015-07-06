@@ -40,7 +40,7 @@ public class Hand extends Observable {//implements BankRoll.Bettable{
     public Hand(Deck deck) {
         this.deck = deck;
         cardList=new ArrayList<Card>(INIT_HAND_SIZE);
-        this.NewHand();
+        this.newHand();
 
     }
 
@@ -54,10 +54,10 @@ public class Hand extends Observable {//implements BankRoll.Bettable{
         Hand one=new Hand(deck);
         Hand two=new Hand(deck);
         for (int i = 0; i < 10; i++) {
-            one.Deal();
-            two.Deal();
-            one.Deal();
-            two.Deal();
+            one.deal();
+            two.deal();
+            one.deal();
+            two.deal();
             System.out.println("Original");
             System.out.println("Hand1: " + one.toString());
             System.out.println("Hand2: " + two.toString());
@@ -66,17 +66,17 @@ public class Hand extends Observable {//implements BankRoll.Bettable{
             System.out.println("Hand1: " + one.toString());
             System.out.println("Hand2: " + two.toString());
             System.out.println("------------------");
-            one.clear();
-            two.clear();
+            one.newHand();
+            two.newHand();
         }
     }
 
     private static void testTotal() {
         Hand hand=new Hand( );
         for (int i = 0; i < 20; i++) {
-            hand.clear();
+            hand.newHand();
             for (int j = 0; j < 4; j++) {
-                hand.Deal();
+                hand.deal();
                 System.out.println(hand.toString());
             }
             System.out.println();
@@ -89,13 +89,6 @@ public class Hand extends Observable {//implements BankRoll.Bettable{
         Card twoToOne=hand2.get(1);
         hand1.set(1,twoToOne);
         hand2.set(1, oneToTwo);
-    }
-
-    private void NewHand() {
-        //total=0;
-        this.clear();
-
-        //soft=false;
     }
 
     public synchronized void privateDeal( Card newCard)
@@ -142,11 +135,11 @@ public class Hand extends Observable {//implements BankRoll.Bettable{
     }
 
 
-    public void Deal ()
+    public void deal()
     {
         privateDeal(deck.getCard());
     }
-    public String  HandString(String seperator)
+    public String internalHandString(String seperator)
     {
         StringBuilder sb=new StringBuilder((2+seperator.length())* INIT_HAND_SIZE);
         for (int i = 0; i < this.size()-1; i++) {
@@ -157,7 +150,11 @@ public class Hand extends Observable {//implements BankRoll.Bettable{
     }
     @Override
     public String toString() {
-        return ((soft)? "SOFT":"    ")+ " "+total+ " : "+ HandString(" ");
+        if(size()==0)
+        {
+            return "EMPTY";
+        }else
+                {return ((soft)? "SOFT":"    ")+ " "+total+ " : "+ internalHandString(" ");}
     }
 
     //<editor-fold desc="cardlist delegates">
@@ -178,7 +175,7 @@ public class Hand extends Observable {//implements BankRoll.Bettable{
         return result;
     }
 
-    public synchronized void clear() {
+    public synchronized void newHand() {
         cardList.clear();
         total=0;
         setChanged();

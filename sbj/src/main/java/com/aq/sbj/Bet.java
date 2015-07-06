@@ -64,9 +64,9 @@ public  class Bet extends Observable{
         throwIfDone();
         int oldBank = Bank.Money();
         int winnings = getValue() * leftOdds / rightOdds;
-        tracer.info(String.format("The %1$ bet for $%3$ of %2$ has won $%3$+$%4$=%5$", this.DisplayStringType(), this.Bank.BankName, this.getValue(), winnings, getValue() + winnings));
+        //tracer.info("The bet for $%3$ of %2$ has won $%3$+$%4$=%5$", this.DisplayStringType(), this.Bank.BankName, this.getValue(), winnings, getValue() + winnings));
         Bank.Win(winnings + getValue());
-        tracer.info(String.format("%1$ went from %2$->%3$", Bank.BankName, oldBank, Bank.Money()));
+        tracer.info(Bank.BankName+" went from $"+oldBank+"->"+Bank.Money());
         //this.DeleteMe(); ;  //the table will handle deletions.
         setDone();
 
@@ -87,10 +87,12 @@ public  class Bet extends Observable{
         done=true;
     }
 
+    /**
+     * Table MUST clear bet after
+     */
     public void Loser()
     {
-        tracer.info(String.format("The %1$ bet of %2$ for $%3! has lost",
-                this.DisplayStringType(), this.Bank.BankName, this.getValue()));
+        tracer.info("The "+this.DisplayStringType()+"bet of $"+this.Bank.BankName+" for "+getValue()+" has lost");
         setDone();
     }
 
@@ -100,8 +102,7 @@ public  class Bet extends Observable{
     {
         Bank.Win(getValue());
 
-        tracer.info(String.format("The %1! bet for $%2! of %3! is given back (push)",
-                TypeOfBet(), getValue(), Bank.BankName));
+        tracer.info("The bet for "+getValue()+" of "+Bank.BankName+" is given back (push)");
     }
 
     private String TypeOfBet() {
@@ -126,10 +127,14 @@ public  class Bet extends Observable{
     //public abstract boolean Evaluate();
 
     public boolean isChangable() {
-        return false;
+        return true;
     }
 
-    public void Change(int newBet) {
+    public void doubleBet()
+    {
+        Change(getValue()*2);
+    }
+    private void Change(int newBet) {
         int betDelta = (int) newBet - (int) getValue();
 
         if (isChangable() && betDelta <= Bank.Money()) {
@@ -154,6 +159,7 @@ public  class Bet extends Observable{
     public void setValue(int value) {
         this.value = value;
         setChanged();
+        notifyObservers();
 
     }
 
